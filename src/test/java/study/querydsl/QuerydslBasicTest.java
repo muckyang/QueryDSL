@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,10 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import study.querydsl.dto.MemberSearchCondition;
+import study.querydsl.dto.MemberTeamDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
+import study.querydsl.repository.MemberRepository;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -22,12 +27,12 @@ import static study.querydsl.entity.QMember.*;
 
 @SpringBootTest
 @Transactional
-//@Commit
 public class QuerydslBasicTest {
-
     @Autowired
     EntityManager em;
 
+    @Autowired
+    MemberRepository memberRepository;
     //동시성 문제 없음
     JPAQueryFactory queryFactory;
 
@@ -37,13 +42,12 @@ public class QuerydslBasicTest {
     @BeforeEach
     public void before() {
         queryFactory = new JPAQueryFactory(em);
+        logger.error("started TEST");
     }
 
     @Test
-    @Transactional
-    //@RollBack(false)
+    @Rollback(false)
     public void testEntity() throws Exception {
-
         Team teamA = new Team("TeamA");
         Team teamB = new Team("TeamB");
         em.persist(teamA);
@@ -115,5 +119,37 @@ public class QuerydslBasicTest {
                 .fetchOne();
 
         assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+
+    @Test
+    public void ProjectionTest() throws Exception {
+        MemberSearchCondition condition = new MemberSearchCondition();
+        condition.setTeamName("TeamB");
+        condition.setUsername("member3");
+        List<MemberTeamDto> result = memberRepository.searchBuilder(condition);
+        for(MemberTeamDto one :result){
+            System.out.println(one.toString());
+        }
+    }
+
+    @Test
+    public void dynamicQuery_BooleanBuilder()  {
+        String username ="member1";
+        Integer age = null;
+        List<Member>result = searchMember(username,age);
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    private List<Member> searchMember(String nameCond, Integer ageCond){
+        BooleanBuilder builder = new BooleanBuilder();
+        if(nameCond != null){
+            builder.and(member.username.eq(nameCond));
+        }  if(ageCond != null){
+            builder.and(member.age.eq(ageCond));
+        }
+
+        return queryFactory.selectFrom(member)
+                .where(builder)
+                .fetch();
     }
 }

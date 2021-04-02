@@ -2,9 +2,12 @@ package study.querydsl.dto;
 
 
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.Data;
+import lombok.*;
+
 
 @Data
+@ToString(of={"username","age","teamName"})
+@NoArgsConstructor
 public class MemberTeamDto {
     private Long memberId;
     private String username;

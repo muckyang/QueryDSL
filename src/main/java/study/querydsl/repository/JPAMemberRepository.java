@@ -140,8 +140,4 @@ public class JPAMemberRepository {
     private BooleanExpression ageLoe(Integer ageLoe) {
         return ageLoe == null ? null : member.age.loe(ageLoe);
     }
-
-
-
-
 }
