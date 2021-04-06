@@ -132,24 +132,24 @@ public class QuerydslBasicTest {
         }
     }
 
-    @Test
-    public void dynamicQuery_BooleanBuilder()  {
-        String username ="member1";
-        Integer age = null;
-        List<Member>result = searchMember(username,age);
-        assertThat(result.size()).isEqualTo(1);
-    }
-
-    private List<Member> searchMember(String nameCond, Integer ageCond){
-        BooleanBuilder builder = new BooleanBuilder();
-        if(nameCond != null){
-            builder.and(member.username.eq(nameCond));
-        }  if(ageCond != null){
-            builder.and(member.age.eq(ageCond));
-        }
-
-        return queryFactory.selectFrom(member)
-                .where(builder)
-                .fetch();
-    }
+//    @Test
+//    public void dynamicQuery_BooleanBuilder()  {
+//        String username ="member1";
+//        Integer age = null;
+//        List<Member>result = searchMember(username,age);
+//        assertThat(result.size()).isEqualTo(1);
+//    }
+//
+//    private List<Member> searchMember(String nameCond, Integer ageCond){
+//        BooleanBuilder builder = new BooleanBuilder();
+//        if(nameCond != null){
+//            builder.and(member.username.eq(nameCond));
+//        }  if(ageCond != null){
+//            builder.and(member.age.eq(ageCond));
+//        }
+//
+//        return queryFactory.selectFrom(member)
+//                .where(builder)
+//                .fetch();
+//    }
 }
